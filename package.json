@@ -1,6 +1,6 @@
 {
   "name": "@quanxiaoxiao/http",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "lint": "tsc",
@@ -9,6 +9,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
+  "main": "./src/index.mjs",
   "exports": {
     ".": "./src/index.mjs",
     "./package.json": "./package.json"
