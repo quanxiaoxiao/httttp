@@ -3,6 +3,18 @@ import { match } from 'path-to-regexp';
 import compare from '@quanxiaoxiao/compare';
 
 /**
+ * @typedef {{
+ *   pathname: string,
+ *   urlMatch: (a: string) => null | Object,
+ *   match?: (req: Object) => boolean,
+ *   onPre?: (req: Object) => Promise<void>,
+ *   onRequest?: (req: Object) => Promise<void>,
+ *   onResponse?: (req: Object, res: Object) => Promise<void>,
+ *   onPost?: (req: Object, res: Object) => Promise<void>,
+ * }} RouteHandler
+ */
+
+/**
  * @typedef {Object} RouteItem
  * @property {Object<string, Object>|Array<Object>} [match]
  * @property {() => Promise<void>} [onPre]
@@ -25,17 +37,7 @@ export default (data) => {
     }
     const d = data[pathname];
     try {
-      /**
-        * @type {{
-        *   pathname: string,
-        *   urlMatch: (a: string) => Object,
-        *   match?: (req: Object) => boolean,
-        *   onPre?: (req: Object) => Promise<void>,
-        *   onRequest?: (req: Object) => Promise<void>,
-        *   onResponse?: (req: Object, res: Object) => Promise<void>,
-        *   onPost?: (req: Object, res: Object) => Promise<void>,
-        * }}
-       */
+      /** @type {RouteHandler} */
       const routeItem = {
         pathname,
         urlMatch: match(pathname),
