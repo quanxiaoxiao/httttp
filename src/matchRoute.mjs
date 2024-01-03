@@ -20,10 +20,6 @@ export default (routeList) => (/** @type {string} */ pathname) => {
    * @typedef {{
    *   pathname: string,
    *   match?: (req: Request) => boolean,
-   *   onPre?: (req: Request) => Promise<void>,
-   *   onRequest?: (req: Request) => Promise<void>,
-   *   onResponse?: (req: Request, res: Object) => Promise<void>,
-   *   onPost?: (req: Request, res: Object) => Promise<void>,
    *   params: Object,
    * }} MatchedHandler
    */
@@ -33,12 +29,9 @@ export default (routeList) => (/** @type {string} */ pathname) => {
   for (let i = 0; i < routeList.length; i++) {
     const item = routeList[i];
     const base = {
+      ...item,
       pathname: item.pathname,
       match: item.match,
-      onPre: item.onPre,
-      onRequest: item.onRequest,
-      onResponse: item.onResponse,
-      onPost: item.onPost,
       params: {},
     };
     if (item.pathname === pathname) {
@@ -61,29 +54,56 @@ export default (routeList) => (/** @type {string} */ pathname) => {
    * @param {Request} request
    * @returns {{
    *   pathname: string,
-   *   onPre?: (req: Request) => Promise<void>,
-   *   onRequest?: (req: Request) => Promise<void>,
-   *   onResponse?: (req: Request, res: Object) => Promise<void>,
-   *   onPost?: (req: Request, res: Object) => Promise<void>,
    *   params: Object,
    * }}
    */
   return (request) => {
     for (let i = 0; i < pathnameMatchedList.length; i++) {
       const pathnameMatchedItem = pathnameMatchedList[i];
-      const handler = {
-        pathname: pathnameMatchedItem.pathname,
-        params: pathnameMatchedItem.params,
-        onPre: pathnameMatchedItem.onPre,
-        onRequest: pathnameMatchedItem.onRequest,
-        onResponse: pathnameMatchedItem.onResponse,
-        onPost: pathnameMatchedItem.onPost,
-      };
+      const keys = Object.keys(pathnameMatchedItem);
       if (!pathnameMatchedItem.match) {
-        return handler;
+        return {
+          pathname: pathnameMatchedItem.pathname,
+          params: pathnameMatchedItem.params,
+          ...keys.reduce((acc, key) => {
+            if (key === 'pathname'
+              || key === 'match'
+              || key === 'params'
+              || key === 'urlMatch'
+            ) {
+              return acc;
+            }
+            return {
+              ...acc,
+              // @ts-expect-error
+              [key]: pathnameMatchedItem[key],
+            };
+          }, {}),
+        };
       }
-      if (pathnameMatchedItem.match(request)) {
-        return handler;
+      if (pathnameMatchedItem.match({
+        ...request,
+        // @ts-expect-error
+        params: pathnameMatchedItem.params,
+      })) {
+        return {
+          pathname: pathnameMatchedItem.pathname,
+          params: pathnameMatchedItem.params,
+          ...keys.reduce((acc, key) => {
+            if (key === 'pathname'
+              || key === 'match'
+              || key === 'params'
+              || key === 'urlMatch'
+            ) {
+              return acc;
+            }
+            return {
+              ...acc,
+              // @ts-expect-error
+              [key]: pathnameMatchedItem[key],
+            };
+          }, {}),
+        };
       }
     }
     throw createError(404);

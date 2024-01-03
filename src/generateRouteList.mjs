@@ -7,20 +7,12 @@ import compare from '@quanxiaoxiao/compare';
  *   pathname: string,
  *   urlMatch: (a: string) => null | Object,
  *   match?: (req: Object) => boolean,
- *   onPre?: (req: Object) => Promise<void>,
- *   onRequest?: (req: Object) => Promise<void>,
- *   onResponse?: (req: Object, res: Object) => Promise<void>,
- *   onPost?: (req: Object, res: Object) => Promise<void>,
  * }} RouteHandler
  */
 
 /**
  * @typedef {Object} RouteItem
  * @property {Object<string, Object>|Array<Object>} [match]
- * @property {() => Promise<void>} [onPre]
- * @property {() => Promise<void>} [onRequest]
- * @property {() => Promise<void>} [onResponse]
- * @property {() => Promise<void>} [onPost]
  */
 
 /**
@@ -39,13 +31,10 @@ export default (data) => {
     try {
       /** @type {RouteHandler} */
       const routeItem = {
+        ...d,
         pathname,
         urlMatch: match(pathname),
         match: d.match ? compare(d.match) : null,
-        onPre: d.onPre,
-        onRequest: d.onRequest,
-        onResponse: d.onResponse,
-        onPost: d.onPost,
       };
       result.push(routeItem);
     } catch (error) {

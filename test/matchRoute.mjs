@@ -33,10 +33,6 @@ test('1', (t) => {
   }), {
     pathname: '/aaa',
     params: {},
-    onPre: undefined,
-    onRequest: undefined,
-    onPost: undefined,
-    onResponse: undefined,
   });
 
   t.deepEqual(matchRoute([
@@ -55,9 +51,115 @@ test('1', (t) => {
   }), {
     pathname: '/aaa',
     params: {},
-    onPre: undefined,
-    onRequest: undefined,
-    onPost: undefined,
-    onResponse: undefined,
+  });
+  t.deepEqual(matchRoute([
+    {
+      pathname: '/aaa',
+      urlMatch: () => true,
+      ccc: 'eee',
+    },
+    {
+      pathname: '/bbb',
+      urlMatch: () => true,
+      ccc: 'aaa',
+    },
+  ])('/aaa')({
+    pathname: '/aaa',
+    method: 'GET',
+    headers: {},
+  }), {
+    pathname: '/aaa',
+    params: {},
+    ccc: 'eee',
+  });
+});
+
+test('params 1', (t) => {
+  t.plan(5);
+  const routeMatch = matchRoute([
+    {
+      pathname: '/bbb',
+      urlMatch: (pathname) => {
+        t.is(pathname, '/aaa');
+        return true;
+      },
+      match: (d) => {
+        t.deepEqual(d.params, {});
+        return false;
+      },
+      ccc: 'ddd',
+    },
+    {
+      pathname: '/aaa',
+      urlMatch: () => {
+        t.fail();
+        return false;
+      },
+      match: (d) => {
+        t.deepEqual(d.params, {});
+        return true;
+      },
+      ccc: 'eee',
+    },
+    {
+      pathname: '/ccc',
+      urlMatch: (pathname) => {
+        t.is(pathname, '/aaa');
+        return false;
+      },
+      ccc: 'fff',
+    },
+  ]);
+  const matched = routeMatch('/aaa')({
+    pathname: '/111',
+    method: 'GET',
+  });
+  t.deepEqual(matched, {
+    pathname: '/aaa',
+    params: {},
+    ccc: 'eee',
+  });
+});
+
+test('2', (t) => {
+  t.plan(3);
+  const routeMatch = matchRoute([
+    {
+      pathname: '/bbb',
+      urlMatch: (pathname) => {
+        t.is(pathname, '/aaa');
+        return true;
+      },
+      ccc: 'ddd',
+    },
+    {
+      pathname: '/aaa',
+      urlMatch: () => {
+        t.fail();
+        return false;
+      },
+      match: () => {
+        t.fail();
+        return true;
+      },
+      ccc: 'eee',
+    },
+    {
+      pathname: '/ccc',
+      urlMatch: (pathname) => {
+        t.is(pathname, '/aaa');
+        return false;
+      },
+      ccc: 'fff',
+    },
+  ]);
+  const matched = routeMatch('/aaa')({
+    pathname: '/111',
+    method: 'GET',
+  });
+  t.deepEqual(matched, {
+    pathname: '/bbb',
+    params: {},
+    ccc: 'ddd',
   });
 });
