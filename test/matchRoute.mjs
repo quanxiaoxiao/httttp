@@ -163,3 +163,74 @@ test('2', (t) => {
     ccc: 'ddd',
   });
 });
+
+test('3', (t) => {
+  t.plan(3);
+  const routeMatch = matchRoute([
+    {
+      pathname: '/ccc',
+      urlMatch: () => {
+        t.pass();
+        return true;
+      },
+      match: () => {
+        t.pass();
+        return false;
+      },
+      ccc: 'ddd',
+    },
+  ]);
+  const match = routeMatch('/bbb');
+  try {
+    match({
+      pathname: '/bbb',
+      method: 'GET',
+    });
+    t.fail();
+  } catch (error) {
+    t.is(error.statusCode, 405);
+  }
+});
+
+test('4', (t) => {
+  t.plan(2);
+  const routeMatch = matchRoute([
+    {
+      pathname: '/bbb',
+      urlMatch: () => {
+        t.fail();
+        return true;
+      },
+      match: () => {
+        t.pass();
+        return false;
+      },
+      ccc: 'ddd',
+    },
+  ]);
+  const match = routeMatch('/bbb');
+  try {
+    match({
+      pathname: '/bbb',
+      method: 'GET',
+    });
+    t.fail();
+  } catch (error) {
+    t.is(error.statusCode, 405);
+  }
+});
+
+test('5', (t) => {
+  const routeMatch = matchRoute([
+    {
+      pathname: '/bbb',
+      urlMatch: () => false,
+    },
+  ]);
+  try {
+    routeMatch('/aaa');
+    t.fail();
+  } catch (error) {
+    t.is(error.statusCode, 404);
+  }
+});
