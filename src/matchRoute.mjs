@@ -106,6 +106,6 @@ export default (routeList) => (/** @type {string} */ pathname) => {
         };
       }
     }
-    throw createError(404);
+    throw createError(405);
   };
 };
